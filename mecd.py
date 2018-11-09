@@ -4,7 +4,7 @@ from ast import literal_eval
 import os
 
 
-with open(r'app/etc/env.php') as config_file:
+with open(r'./app/etc/env.php') as config_file:
     config_file = ' '.join(config_file.read().split())
 
 config_file = re.search(r"'connection' => ((.|\n)*?)\],", config_file).group(1)
