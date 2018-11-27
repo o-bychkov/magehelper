@@ -4,39 +4,43 @@ from ast import literal_eval
 import os
 
 
-with open(r'./app/etc/env.php') as config_file:
-    config_file = ' '.join(config_file.read().split())
+with open(r'./app/etc/env.php') as file:
+    config_file = ' '.join(file.read().split())
+with open(r'./app/etc/env.php') as file:
+    config_file_origin = ' '.join(file.read().split())
 
-config_file = re.search(r"'connection' => ((.|\n)*?)\],", config_file).group(1)
+config_file = re.sub(r'\(', '[', config_file)
+config_file = re.sub(r'\)', ']', config_file)
+
+start = [elem for elem in reversed(range(config_file.find('dbname'))) if config_file[elem] == '[']
+end = [elem for elem in range(config_file.find('dbname'), len(config_file)) if config_file[elem] == ']']
+
+config_file = config_file[start[0]:end[0]+1]
+
+password = re.search("'password' => '(.*?)'", config_file_origin)
+
 config_file = re.sub(r' =>', ':', config_file)
 config_file = re.sub(r'\[', '{', config_file)
 config_file = re.sub(r'\]', '}', config_file)
 config_file = literal_eval(config_file)
 
-host = config_file['default']['host'].split(':')
+host = config_file['host'].split(':')
 
 if len(host) == 1:
-    mysql_connect = "mysql -u {} -p{} {} -h {}".format(config_file['default']['username'],
-                                                       config_file['default']['password'],
-                                                       config_file['default']['dbname'],
+    mysql_connect = "mysql -u {} -p{} {} -h {}".format(config_file['username'],
+                                                       password.group(1),
+                                                       config_file['dbname'],
                                                        host[0])
 
 elif len(host) == 2:
     print(host[1])
-    mysql_connect = "mysql -u {} -p{} {} -h {} -P {}".format(config_file['default']['username'],
-                                                             config_file['default']['password'],
-                                                             config_file['default']['dbname'], host[0], host[1])
+    mysql_connect = "mysql -u {} -p{} {} -h {} -P {}".format(config_file['username'],
+                                                             password.group(1),
+                                                             config_file['dbname'], host[0], host[1])
 
 else:
     print('Error!')
     exit()
-
-# Old idea
-# def regex(value):
-#     config_file = open(r'/home/olezzha/thrash/env.php')
-#     result = re.findall("'db'(.+?)\],".format(value, ), str(config_file.readlines()))
-#     config_file.close()
-#     return (re.search(r"'{}' => (.+?),".format(value, ), *result).group(1))[1:-1]
 
 query_check_domain = 'select * from core_config_data where path like "%base%url%"'
 os.system("{} -e '{}' 2>>/dev/null".format(mysql_connect, query_check_domain))
