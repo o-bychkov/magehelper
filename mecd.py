@@ -5,8 +5,9 @@ import os
 with open(r'./app/etc/env.php') as file:
     config_file = ' '.join(file.read().split())
 
-regex = re.findall(r'\((.*?)\),\s', config_file, flags=re.DOTALL)
+regex = re.findall(r"'db'(.*?)(\),|],)", config_file, flags=re.DOTALL)
 for elem in regex:
+    elem = ''.join(elem)
     if 'host' in elem and 'dbname' in elem and 'username' in elem:
         database_credentials = elem
 
@@ -15,6 +16,7 @@ dbname = re.search(r"'dbname'....'(.*?)'", database_credentials).group(1)
 username = re.search(r"'username'....'(.*?)'", database_credentials).group(1)
 password = re.search(r"'password'....'(.*?)'", database_credentials).group(1)
 table_prefix = re.search(r"'table_prefix'....'(.*?)'", database_credentials).group(1)
+
 
 if len(host) == 1:
     mysql_connect = "mysql -u {} -p{} {} -h {}".format(username,
