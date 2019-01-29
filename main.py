@@ -40,6 +40,7 @@ def conn_mysql():
                                                                  database_credentials['dbname'],
                                                                  database_credentials['host'][0],
                                                                  database_credentials['host'][1])
+    
     return mysql_connect
 
 
@@ -78,15 +79,18 @@ def create_parser():
     subparsers = parser.add_subparsers(dest='command')
     subparsers.add_parser('change', help='Change domain in database.')
     subparsers.add_parser('backup', help='Create database backup')
+    subparsers.add_parser('get', help='Get string for connect')
     return parser
 
 
 if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
-
     if args.command == 'change':
         change_domain()
 
     elif args.command == 'backup':
         print(create_database_backup())
+
+    elif args.command == 'get':
+        print(conn_mysql())
