@@ -29,13 +29,13 @@ def conn_mysql():
     database_credentials = get_database_credentials()
 
     if len(database_credentials['host']) == 1:
-        mysql_connect = "mysql -u {} -p{} {} -h {}".format(database_credentials['username'],
+        mysql_connect = "mysql -u '{}' -p'{}' '{}' -h '{}'".format(database_credentials['username'],
                                                            database_credentials['password'],
                                                            database_credentials['dbname'],
                                                            database_credentials['host'][0])
 
     elif len(database_credentials['host']) == 2:
-        mysql_connect = "mysql -u {} -p{} {} -h {} -P {}".format(database_credentials['username'],
+        mysql_connect = "mysql -u '{}' -p'{}' '{}' -h '{}' -P '{}'".format(database_credentials['username'],
                                                                  database_credentials['password'],
                                                                  database_credentials['dbname'],
                                                                  database_credentials['host'][0],
@@ -80,6 +80,7 @@ def create_parser():
     subparsers.add_parser('change', help='Change domain in database.')
     subparsers.add_parser('backup', help='Create database backup')
     subparsers.add_parser('get', help='Get string for connect')
+    subparsers.add_parser('dbname', help='Get dbname')
     return parser
 
 
@@ -94,3 +95,6 @@ if __name__ == "__main__":
 
     elif args.command == 'get':
         print(conn_mysql())
+
+    elif args.command == 'dbname':
+        print(get_database_credentials()['dbname'])
